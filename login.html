@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Study Mentor | Login</title>
+    <style>
+      :root {
+        --pink: #f875aa;
+        --rose: #fdeded;
+        --mint: #edfff0;
+        --sky: #aedefc;
+        --dark: #1f1f2b;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background: linear-gradient(120deg, var(--rose), var(--mint));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      main {
+        width: min(420px, 100%);
+        background: #fff;
+        border-radius: 28px;
+        padding: 2.5rem;
+        box-shadow: 0 25px 45px rgba(31, 31, 43, 0.12);
+        border: 2px solid var(--sky);
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        color: var(--dark);
+      }
+
+      p {
+        color: rgba(31, 31, 43, 0.75);
+        margin-bottom: 2rem;
+        line-height: 1.5;
+      }
+
+      button {
+        width: 100%;
+        border: none;
+        border-radius: 999px;
+        padding: 0.95rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        background: var(--pink);
+        box-shadow: 0 10px 25px rgba(248, 117, 170, 0.35);
+        cursor: pointer;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+
+      .status {
+        margin-top: 1.5rem;
+        background: var(--rose);
+        border-radius: 16px;
+        padding: 1rem;
+        font-size: 0.95rem;
+        border: 1px dashed var(--pink);
+        color: var(--dark);
+        min-height: 56px;
+      }
+
+      small {
+        display: block;
+        margin-top: 1.5rem;
+        font-size: 0.85rem;
+        color: rgba(31, 31, 43, 0.65);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Welcome Back</h1>
+      <p>
+        Sign in with Google to sync your AI Study Mentor plans and flashcards
+        across devices.
+      </p>
+      <button id="google-signin">
+        <span>🔐</span>
+        Continue with Google
+      </button>
+      <div class="status" id="status-box">
+        Secure Google sign-in powered by Firebase Authentication.
+      </div>
+      <small>
+        By continuing you agree to keep your study data synced with Firebase.
+      </small>
+    </main>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+      // TODO: Replace the config below with your Firebase project settings.
+      const firebaseConfig = {
+  apiKey: "AIzaSyDxXvXgq-F93MeNI7oDgrgE4od98iGrwPY",
+  authDomain: "sample1-43acf.firebaseapp.com",
+  projectId: "sample1-43acf",
+  storageBucket: "sample1-43acf.firebasestorage.app",
+  messagingSenderId: "869765744034",
+  appId: "1:869765744034:web:ce8408aa4f5ce575a49efb",
+  measurementId: "G-E5C3HTR3XL"
+};
+
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+
+      const signInBtn = document.getElementById("google-signin");
+      const statusBox = document.getElementById("status-box");
+
+      const setStatus = (message, isError = false) => {
+        statusBox.textContent = message;
+        statusBox.style.background = isError ? "#FDEDED" : "var(--rose)";
+        statusBox.style.borderColor = isError ? "#F875AA" : "var(--pink)";
+      };
+
+      const redirectHome = () => {
+        window.location.href = "index.html";
+      };
+
+      signInBtn.addEventListener("click", async () => {
+        signInBtn.disabled = true;
+        setStatus("Launching secure Google sign-in...");
+
+        try {
+          await signInWithPopup(auth, provider);
+          setStatus("Success! Redirecting to your dashboard...");
+          setTimeout(redirectHome, 600);
+        } catch (error) {
+          console.error(error);
+          setStatus(
+            error.code === "auth/popup-closed-by-user"
+              ? "Sign-in cancelled. Please try again."
+              : "We hit a snag signing you in. Check the console for details.",
+            true
+          );
+          signInBtn.disabled = false;
+        }
+      });
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setStatus(`Signed in as ${user.displayName || "you"} — redirecting...`);
+          setTimeout(redirectHome, 500);
+        }
+      });
+    </script>
+  </body>
+</html>
+

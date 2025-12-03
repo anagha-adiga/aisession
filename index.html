@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Study Management</title>
+    <style>
+      :root {
+        --pink: #f875aa;
+        --rose: #fdeded;
+        --mint: #edfff0;
+        --sky: #aedefc;
+        --dark: #1f1f2b;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--rose), var(--mint));
+        color: var(--dark);
+        min-height: 100vh;
+      }
+
+      header {
+        background: var(--pink);
+        color: #fff;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        border-bottom-left-radius: 32px;
+        border-bottom-right-radius: 32px;
+        box-shadow: 0 15px 35px rgba(248, 117, 170, 0.35);
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1.5rem 4rem;
+        display: grid;
+        gap: 2rem;
+      }
+
+      section {
+        background: #fff;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 25px 40px rgba(32, 51, 63, 0.08);
+        border: 2px solid var(--sky);
+      }
+
+      section h2 {
+        font-size: 1.7rem;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+      }
+
+      .score-inputs {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .score-inputs label {
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        display: block;
+      }
+
+      .score-inputs input,
+      .score-inputs select,
+      textarea {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--sky);
+        background: var(--mint);
+        font-size: 1rem;
+        color: var(--dark);
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      button {
+        border: none;
+        background: var(--pink);
+        color: #fff;
+        font-weight: 600;
+        padding: 0.9rem 1.8rem;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-top: 1rem;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 22px rgba(248, 117, 170, 0.35);
+      }
+
+      .recommendations {
+        margin-top: 1.5rem;
+        background: var(--rose);
+        border-radius: 18px;
+        padding: 1.5rem;
+        border: 1px dashed var(--pink);
+      }
+
+      .recommendations h3 {
+        margin-bottom: 0.8rem;
+      }
+
+      .recommendations ul {
+        list-style: none;
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .recommendations li::before {
+        content: "• ";
+        color: var(--pink);
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .flashcards-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        perspective: 1200px;
+      }
+
+      .card-inner {
+        position: relative;
+        width: 100%;
+        padding-top: 60%;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+      }
+
+      .card-inner.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        text-align: center;
+        border: 2px solid var(--pink);
+        backface-visibility: hidden;
+      }
+
+      .card-front {
+        background: var(--sky);
+      }
+
+      .card-back {
+        background: var(--mint);
+        transform: rotateY(180deg);
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem 1rem 3rem;
+        font-size: 0.95rem;
+        color: rgba(31, 31, 43, 0.75);
+      }
+
+      @media (max-width: 600px) {
+        header h1 {
+          font-size: 2rem;
+        }
+
+        section {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>AI Study Mentor</h1>
+      <p>Personalized improvement insights and adaptive flashcards</p>
+    </header>
+
+    <main>
+      <section id="improvement">
+        <h2>Areas for Improvement</h2>
+        <div class="score-inputs">
+          <div>
+            <label for="subject">Subject / Topic</label>
+            <input
+              id="subject"
+              type="text"
+              placeholder="e.g. Linear Algebra"
+              required
+            />
+          </div>
+          <div>
+            <label for="score">Last Score (%)</label>
+            <input
+              id="score"
+              type="number"
+              min="0"
+              max="100"
+              placeholder="72"
+              required
+            />
+          </div>
+          <div>
+            <label for="goal">Target Score (%)</label>
+            <input
+              id="goal"
+              type="number"
+              min="0"
+              max="100"
+              placeholder="90"
+            />
+          </div>
+          <div>
+            <label for="study-style">Preferred Study Style</label>
+            <select id="study-style">
+              <option value="recall">Active Recall</option>
+              <option value="visual">Visual Mapping</option>
+              <option value="practice">Practice Exams</option>
+              <option value="teach">Teach Back</option>
+            </select>
+          </div>
+        </div>
+        <label for="notes" style="display: block; margin-top: 1rem">
+          Notes from last attempt
+        </label>
+        <textarea
+          id="notes"
+          placeholder="Where did things feel shaky?"
+        ></textarea>
+        <button id="analyze-btn">Generate Focus Plan</button>
+
+        <div class="recommendations" id="recommendations">
+          <h3>Your plan will appear here</h3>
+          <p>Enter your recent scores to get tailored focus areas.</p>
+        </div>
+      </section>
+
+      <section id="flashcards">
+        <h2>AI-Boosted Flashcards</h2>
+        <p style="margin-bottom: 1.5rem">
+          Tap a card to flip it. The system seeds prompts to keep sessions active
+          and varied.
+        </p>
+        <div class="flashcards-grid" id="flashcard-grid"></div>
+      </section>
+    </main>
+
+    <footer>Designed for mindful, data-driven studying ✦ Powered by you.</footer>
+
+    <script>
+      const suggestions = [
+        {
+          threshold: 85,
+          items: [
+            "Tighten mastery by teaching the topic to a study buddy or AI tutor.",
+            "Generate three 'What if?' variations on the hardest problems.",
+            "Close gaps with spaced repetition drills focusing on speed.",
+          ],
+        },
+        {
+          threshold: 70,
+          items: [
+            "Map key concepts visually, then narrate connections aloud.",
+            "Build a short quiz for yourself based on the toughest questions.",
+            "Pair flashcards with retrieval prompts — ask 'why' twice.",
+          ],
+        },
+        {
+          threshold: 50,
+          items: [
+            "Chunk the topic into micro-skills and practice them sequentially.",
+            "Use AI to simulate a tutoring session; ask it to quiz you.",
+            "Summarize the chapter in 5 bullet points, then expand each.",
+          ],
+        },
+        {
+          threshold: 0,
+          items: [
+            "Start with foundational videos or summaries to rebuild context.",
+            "Create flashcards for definitions before tackling applications.",
+            "Set 20-minute focus sprints with tiny wins to build momentum.",
+          ],
+        },
+      ];
+
+      const flashcards = [
+        {
+          front: "Feynman Technique",
+          back: "Explain the topic simply, find gaps, revisit sources, repeat.",
+        },
+        {
+          front: "Active Recall Prompt",
+          back: "List 3 core ideas without notes; check accuracy afterward.",
+        },
+        {
+          front: "Pomodoro Refresh",
+          back: "Work 25 min, rest 5. After 4 rounds, take a longer break.",
+        },
+        {
+          front: "Confidence Rating",
+          back: "Score your certainty 1-5 before revealing the answer.",
+        },
+        {
+          front: "Metacognition Cue",
+          back: "Ask: 'What do I still not fully understand about this?'",
+        },
+        {
+          front: "AI Pairing",
+          back: "Use an AI assistant to role-play examiners and probe deeper.",
+        },
+      ];
+
+      const analyzeBtn = document.getElementById("analyze-btn");
+      const recommendationsBox = document.getElementById("recommendations");
+
+      analyzeBtn.addEventListener("click", () => {
+        const subject = document.getElementById("subject").value.trim();
+        const score = Number(document.getElementById("score").value);
+        const goal = Number(document.getElementById("goal").value) || null;
+        const notes = document.getElementById("notes").value.trim();
+        const style = document.getElementById("study-style").value;
+
+        if (!subject || Number.isNaN(score)) {
+          recommendationsBox.innerHTML =
+            "<p>Please enter at least a subject and score.</p>";
+          return;
+        }
+
+        const bucket =
+          suggestions.find((s) => score >= s.threshold) ||
+          suggestions[suggestions.length - 1];
+
+        const computedGoal =
+          goal && goal > score
+            ? `Aim to raise your score by ${goal - score}% with focused drills.`
+            : "Set a stretch goal to keep momentum high.";
+
+        const styleTip =
+          {
+            recall: "Lean on active recall — build rapid-fire quiz decks.",
+            visual: "Sketch mind-maps after each study sprint.",
+            practice:
+              "Use timed practice sets; review mistakes immediately afterward.",
+            teach:
+              "Record yourself teaching the topic, then note uncertain moments.",
+          }[style] || "";
+
+        const html = `
+          <h3>${subject}: Personalized Focus Plan</h3>
+          <p>${computedGoal}</p>
+          <ul>
+            ${bucket.items.map((item) => `<li>${item}</li>`).join("")}
+            <li>${styleTip}</li>
+            ${
+              notes
+                ? `<li>Reflect on notes: "${notes.slice(0, 120)}${
+                    notes.length > 120 ? "..." : ""
+                  }"</li>`
+                : ""
+            }
+          </ul>
+        `;
+
+        recommendationsBox.innerHTML = html;
+      });
+
+      const grid = document.getElementById("flashcard-grid");
+      flashcards.forEach((cardData) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-front">
+              <strong>${cardData.front}</strong>
+            </div>
+            <div class="card-face card-back">
+              <span>${cardData.back}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener("click", () => {
+          card.firstElementChild.classList.toggle("flipped");
+        });
+        grid.appendChild(card);
+      });
+    </script>
+  </body>
+</html>
+
